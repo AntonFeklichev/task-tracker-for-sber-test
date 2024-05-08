@@ -25,5 +25,4 @@ public class Task {
     private TaskStatus status;
     //private List<SubTask> subTasks; //TODO Разобрать с Матвеем
 
-
 }
