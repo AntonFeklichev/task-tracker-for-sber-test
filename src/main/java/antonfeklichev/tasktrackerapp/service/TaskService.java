@@ -9,9 +9,13 @@ public interface TaskService {
 
     TaskDto addTask(NewTaskDto createTaskDto);
 
+    TaskDto getTaskById(Long taskId);
+
     List<TaskDto> getAllTasks();
 
-    TaskDto updateTaskStatusByTaskId(Long taskId, TaskDto taskDto);
+    TaskDto updateTaskById(Long taskId, TaskDto taskDto);
 
-    void deleteTaskById(Long taskId);
+    void deleteTaskById(Long taskId); //TODO удалять подзадачи или кидать исключение
+
+
 }
