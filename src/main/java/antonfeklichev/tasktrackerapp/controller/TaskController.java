@@ -2,6 +2,7 @@ package antonfeklichev.tasktrackerapp.controller;
 
 import antonfeklichev.tasktrackerapp.dto.NewTaskDto;
 import antonfeklichev.tasktrackerapp.dto.TaskDto;
+import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
 import antonfeklichev.tasktrackerapp.service.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,9 +29,9 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskDto>> getAllTasks() {
+    public ResponseEntity<List<TaskDto>> getAllTasks(@RequestBody TaskFilterDto filter) {
         return ResponseEntity.ok()
-                .body(taskService.getAllTasks());
+                .body(taskService.getAllTasks(filter));
     }
 
     @PatchMapping(path = "/{taskId}")
@@ -39,7 +40,7 @@ public class TaskController {
                                                   @RequestBody
                                                   TaskDto taskDto) {
         return ResponseEntity.ok()
-                .body(taskService.updateTaskById(taskId, taskDto)); //TODO разобрать необходимость taskId
+                .body(taskService.updateTaskById(taskId, taskDto));
 
     }
 

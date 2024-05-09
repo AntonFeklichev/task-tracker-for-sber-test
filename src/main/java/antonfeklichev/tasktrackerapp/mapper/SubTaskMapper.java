@@ -1,6 +1,7 @@
 package antonfeklichev.tasktrackerapp.mapper;
 
 import antonfeklichev.tasktrackerapp.dto.NewSubTaskDto;
+import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
 import org.mapstruct.Mapper;
@@ -10,7 +11,7 @@ import org.mapstruct.Named;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface SubTaskMapper {
-    @Mapping(source = "taskId", target = "task", qualifiedByName = "taskIdToTask")//TODO разобрать
+    @Mapping(source = "taskId", target = "task.id")//, qualifiedByName = "taskIdToTask")
     @Mapping(source = "name", target = "name")
     @Mapping(source = "description", target = "description")
     @Mapping(source = "status", target = "status")
@@ -24,7 +25,13 @@ public interface SubTaskMapper {
         Task task = new Task();
         task.setId(taskId);
         return task;
-    }
+    } //TODO Доделать получение Таск
 
+    @Mapping(source = "id", target = "id")
+    @Mapping(source = "name", target = "name")
+    @Mapping(source = "description", target = "description")
+    @Mapping(source = "status", target = "status")
+    @Mapping(source = "task.id", target = "taskId")
+    SubTaskDto toSubTaskDto(SubTask subTask);
 
 }

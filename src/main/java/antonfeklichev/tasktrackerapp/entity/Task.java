@@ -2,6 +2,7 @@ package antonfeklichev.tasktrackerapp.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "tasks")
@@ -10,10 +11,10 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class Task {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.TABLE)
     @Column(name = "id")
     private Long id;
     @Column(name = "name")
@@ -23,6 +24,6 @@ public class Task {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private TaskStatus status;
-    //private List<SubTask> subTasks; //TODO Разобрать с Матвеем
+
 
 }

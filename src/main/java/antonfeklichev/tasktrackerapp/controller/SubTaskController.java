@@ -2,6 +2,7 @@ package antonfeklichev.tasktrackerapp.controller;
 
 import antonfeklichev.tasktrackerapp.dto.NewSubTaskDto;
 import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
+import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
 import antonfeklichev.tasktrackerapp.service.SubTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -28,13 +29,15 @@ public class SubTaskController {
     public ResponseEntity<SubTaskDto> getSubTaskById(@PathVariable(name = "subTaskId") Long subTaskId) {
 
         return ResponseEntity.ok().body(subTaskService.getSubTaskById(subTaskId));
-        //TODO разобрать как возвращаются Exception с ResponseEntity
+
     }
 
     @GetMapping(path = "/task/{taskId}")
     public ResponseEntity<List<SubTaskDto>> getAllSubTasksByTaskId(@PathVariable(name = "taskId")
-                                                                  Long taskId) {
-        return ResponseEntity.ok().body(subTaskService.getAllSubTasksByTaskId(taskId));
+                                                                   Long taskId,
+                                                                   @RequestBody
+                                                                   TaskFilterDto filter) {
+        return ResponseEntity.ok().body(subTaskService.getAllSubTasksByTaskId(taskId, filter));
     }
 
     @PatchMapping(path = "/{subTaskId}")
@@ -48,7 +51,7 @@ public class SubTaskController {
 
     @DeleteMapping(path = "/{subTaskId}")
     public ResponseEntity<Void> deleteSubTaskById(@PathVariable(name = "subTaskId")
-                                            Long subTaskId) {
+                                                  Long subTaskId) {
         subTaskService.deleteSubTaskById(subTaskId);
         return ResponseEntity.noContent().build();
     }
