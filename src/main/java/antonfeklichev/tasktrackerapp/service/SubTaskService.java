@@ -10,7 +10,7 @@ public interface SubTaskService {
 
     SubTaskDto getSubTaskById(Long subTaskId);
 
-    List<SubTaskDto> getAllSubTaskByTaskId(Long taskId);
+    List<SubTaskDto> getAllSubTasksByTaskId(Long taskId);
 
     SubTaskDto updateSubTaskById(Long subTaskId, SubTaskDto subTaskDto);
 

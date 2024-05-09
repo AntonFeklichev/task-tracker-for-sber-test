@@ -32,9 +32,9 @@ public class SubTaskController {
     }
 
     @GetMapping(path = "/task/{taskId}")
-    public ResponseEntity<List<SubTaskDto>> getAllSubTaskByTaskId(@PathVariable(name = "taskId")
+    public ResponseEntity<List<SubTaskDto>> getAllSubTasksByTaskId(@PathVariable(name = "taskId")
                                                                   Long taskId) {
-        return ResponseEntity.ok().body(subTaskService.getAllSubTaskByTaskId(taskId));
+        return ResponseEntity.ok().body(subTaskService.getAllSubTasksByTaskId(taskId));
     }
 
     @PatchMapping(path = "/{subTaskId}")
