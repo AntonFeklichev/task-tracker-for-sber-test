@@ -2,7 +2,7 @@ package antonfeklichev.tasktrackerapp.controller;
 
 import antonfeklichev.tasktrackerapp.dto.NewSubTaskDto;
 import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
-import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
+import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 import antonfeklichev.tasktrackerapp.service.SubTaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -33,11 +33,11 @@ public class SubTaskController {
     }
 
     @GetMapping(path = "/task/{taskId}")
-    public ResponseEntity<List<SubTaskDto>> getAllSubTasksByTaskId(@PathVariable(name = "taskId")
-                                                                   Long taskId,
-                                                                   @RequestBody
-                                                                   TaskFilterDto filter) {
-        return ResponseEntity.ok().body(subTaskService.getAllSubTasksByTaskId(taskId, filter));
+    public ResponseEntity<List<SubTaskDto>> getSubTasksByFilterAndTaskId(@PathVariable(name = "taskId")
+                                                                         Long taskId,
+                                                                         @RequestBody
+                                                                         QueryDslFilterDto filter) {
+        return ResponseEntity.ok().body(subTaskService.getSubTasksByFilterAndTaskId(taskId, filter));
     }
 
     @PatchMapping(path = "/{subTaskId}")

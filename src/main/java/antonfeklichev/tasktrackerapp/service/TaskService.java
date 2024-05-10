@@ -2,7 +2,7 @@ package antonfeklichev.tasktrackerapp.service;
 
 import antonfeklichev.tasktrackerapp.dto.NewTaskDto;
 import antonfeklichev.tasktrackerapp.dto.TaskDto;
-import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
+import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 
 import java.util.List;
 
@@ -12,7 +12,7 @@ public interface TaskService {
 
     TaskDto getTaskById(Long taskId);
 
-    List<TaskDto> getAllTasks(TaskFilterDto filter);
+    List<TaskDto> getTasksByFilter(QueryDslFilterDto filter);
 
     TaskDto updateTaskById(Long taskId, TaskDto taskDto);
 

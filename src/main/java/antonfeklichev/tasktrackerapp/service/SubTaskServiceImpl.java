@@ -1,8 +1,8 @@
 package antonfeklichev.tasktrackerapp.service;
 
 import antonfeklichev.tasktrackerapp.dto.NewSubTaskDto;
+import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
-import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
 import antonfeklichev.tasktrackerapp.entity.QSubTask;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
@@ -26,23 +26,24 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDto addSubTaskByTaskId(Long taskId, NewSubTaskDto newSubTaskDto) {
-
         Task task = taskRepository.findById(taskId).orElseThrow(); //TODO Создать исключение
         SubTask subTask = subTaskMapper.toSubTask(newSubTaskDto);
         subTask.setTask(task);
         SubTask savedSubTask = subTaskRepository.save(subTask);
+
         return subTaskMapper.toSubTaskDto(savedSubTask);
 
     }
 
-
     @Override
     public SubTaskDto getSubTaskById(Long subTaskId) {
-        return null;
+        SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(); //TODO Отработать исключение
+
+        return subTaskMapper.toSubTaskDto(subTask);
     }
 
     @Override
-    public List<SubTaskDto> getAllSubTasksByTaskId(Long taskId, TaskFilterDto filter) {
+    public List<SubTaskDto> getSubTasksByFilterAndTaskId(Long taskId, QueryDslFilterDto filter) {
 
         BooleanBuilder predicate = new BooleanBuilder(QSubTask.subTask.task.id.eq(taskId));
 
@@ -60,11 +61,15 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDto updateSubTaskById(Long subTaskId, SubTaskDto subTaskDto) {
-        return null;
+        SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(); // TODO Отработать исключение
+        subTaskMapper.patchSubTask(subTask, subTaskDto);
+        SubTask savedSubTask = subTaskRepository.save(subTask);
+
+        return subTaskMapper.toSubTaskDto(savedSubTask);
     }
 
     @Override
     public void deleteSubTaskById(Long subTaskId) {
-
+        subTaskRepository.deleteById(subTaskId);
     }
 }

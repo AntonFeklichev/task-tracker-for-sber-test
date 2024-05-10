@@ -1,9 +1,10 @@
 package antonfeklichev.tasktrackerapp.service;
 
 import antonfeklichev.tasktrackerapp.dto.NewTaskDto;
+import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 import antonfeklichev.tasktrackerapp.dto.TaskDto;
-import antonfeklichev.tasktrackerapp.dto.TaskFilterDto;
 import antonfeklichev.tasktrackerapp.entity.QTask;
+import antonfeklichev.tasktrackerapp.entity.Task;
 import antonfeklichev.tasktrackerapp.mapper.TaskMapper;
 import antonfeklichev.tasktrackerapp.repository.TaskRepository;
 import com.querydsl.core.BooleanBuilder;
@@ -22,16 +23,21 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto addTask(NewTaskDto createTaskDto) {
-        return null;
+        Task task = taskMapper.toTask(createTaskDto);
+        Task savedTask = taskRepository.save(task);
+
+        return taskMapper.toTaskDto(savedTask);
     }
 
     @Override
     public TaskDto getTaskById(Long taskId) {
-        return null;
+        Task task = taskRepository.findById(taskId).orElseThrow(); //TODO Отработать Исключение
+
+        return taskMapper.toTaskDto(task);
     }
 
     @Override
-    public List<TaskDto> getAllTasks(TaskFilterDto filter) {
+    public List<TaskDto> getTasksByFilter(QueryDslFilterDto filter) {
         BooleanBuilder predicate = new BooleanBuilder();
         if (filter.status() != null) {
             predicate.and(QTask.task.status.eq(filter.status()));
@@ -47,11 +53,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDto updateTaskById(Long taskId, TaskDto taskDto) {
-        return null;
+        Task task = taskRepository.findById(taskId).orElseThrow(); // TODO Отработать исключение
+        taskMapper.patchTask(task, taskDto);
+        Task savesTask = taskRepository.save(task);
+
+        return taskMapper.toTaskDto(savesTask);
     }
+
 
     @Override
     public void deleteTaskById(Long taskId) {
-
+        taskRepository.deleteById(taskId);
     }
 }

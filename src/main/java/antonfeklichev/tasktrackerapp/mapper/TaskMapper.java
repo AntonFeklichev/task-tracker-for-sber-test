@@ -3,9 +3,7 @@ package antonfeklichev.tasktrackerapp.mapper;
 import antonfeklichev.tasktrackerapp.dto.NewTaskDto;
 import antonfeklichev.tasktrackerapp.dto.TaskDto;
 import antonfeklichev.tasktrackerapp.entity.Task;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingConstants;
+import org.mapstruct.*;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface TaskMapper {
@@ -20,4 +18,7 @@ public interface TaskMapper {
     @Mapping(source = "description", target = "description")
     @Mapping(source = "status", target = "status")
     TaskDto toTaskDto(Task task);
+
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    void patchTask(@MappingTarget Task task, TaskDto taskDto);
 }
