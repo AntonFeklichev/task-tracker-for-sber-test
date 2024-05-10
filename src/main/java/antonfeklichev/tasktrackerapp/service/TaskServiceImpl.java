@@ -75,8 +75,8 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
 
         if(!list.isEmpty() && taskDto.status().equals(TaskStatus.DONE)) {
-            throw new UpdateTaskException("You cannot set DONE status to Task, while its SubTask in progress.");
-        }
+            throw new UpdateTaskException("You cannot set DONE status to Task, while its SubTasks in progress.");
+        } // TODO проверить метод
 
         taskMapper.patchTask(task, taskDto);
         Task savedTask = taskRepository.save(task);
@@ -97,8 +97,9 @@ public class TaskServiceImpl implements TaskService {
 
         if (!list.isEmpty()) {
             throw new DeleteTaskException("Delete active SubTasks of this Task first");
-        }
+        } // TODO Сделать ExceptionHandler
 
         taskRepository.deleteById(taskId);
     }
 }
+
