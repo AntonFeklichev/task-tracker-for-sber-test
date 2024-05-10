@@ -6,6 +6,7 @@ import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
 import antonfeklichev.tasktrackerapp.entity.QSubTask;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
+import antonfeklichev.tasktrackerapp.exception.TaskNotFoundException;
 import antonfeklichev.tasktrackerapp.mapper.SubTaskMapper;
 import antonfeklichev.tasktrackerapp.repository.SubTaskRepository;
 import antonfeklichev.tasktrackerapp.repository.TaskRepository;
@@ -26,7 +27,8 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDto addSubTaskByTaskId(Long taskId, NewSubTaskDto newSubTaskDto) {
-        Task task = taskRepository.findById(taskId).orElseThrow(); //TODO Создать исключение
+        Task task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("You cannot create SubTask with no Task"));
         SubTask subTask = subTaskMapper.toSubTask(newSubTaskDto);
         subTask.setTask(task);
         SubTask savedSubTask = subTaskRepository.save(subTask);
@@ -37,7 +39,8 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDto getSubTaskById(Long subTaskId) {
-        SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(); //TODO Отработать исключение
+        SubTask subTask = subTaskRepository.findById(subTaskId)
+                .orElseThrow(() -> new TaskNotFoundException("SubTask not found"));
 
         return subTaskMapper.toSubTaskDto(subTask);
     }
@@ -61,7 +64,8 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     @Override
     public SubTaskDto updateSubTaskById(Long subTaskId, SubTaskDto subTaskDto) {
-        SubTask subTask = subTaskRepository.findById(subTaskId).orElseThrow(); // TODO Отработать исключение
+        SubTask subTask = subTaskRepository.findById(subTaskId)
+                .orElseThrow(() -> new TaskNotFoundException("SubTask not found"));
         subTaskMapper.patchSubTask(subTask, subTaskDto);
         SubTask savedSubTask = subTaskRepository.save(subTask);
 
