@@ -9,6 +9,7 @@ import lombok.experimental.SuperBuilder;
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @SuperBuilder
 public class SubTask extends Task {
 
@@ -21,7 +22,4 @@ public class SubTask extends Task {
         this.task = task;
     }
 
-    public SubTask(Task task) {
-        this.task = task;
-    }
 }
