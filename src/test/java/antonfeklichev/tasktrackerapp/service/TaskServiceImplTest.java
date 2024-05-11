@@ -3,7 +3,6 @@ package antonfeklichev.tasktrackerapp.service;
 import antonfeklichev.tasktrackerapp.dto.NewTaskDto;
 import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 import antonfeklichev.tasktrackerapp.dto.TaskDto;
-import antonfeklichev.tasktrackerapp.entity.QTask;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
 import antonfeklichev.tasktrackerapp.entity.TaskStatus;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Collections;
@@ -104,12 +102,8 @@ public class TaskServiceImplTest {
         TaskDto taskDto = new TaskDto(1L, "Important Task", "Description", TaskStatus.DONE);
         List<TaskDto> expectedDto = List.of(taskDto);
 
-        BooleanBuilder predicate = new BooleanBuilder();
-        predicate.and(QTask.task.status.eq(TaskStatus.DONE));
-        predicate.and(QTask.task.name.containsIgnoreCase("Important Task"));
-
-        when(taskRepository.findAll(Mockito.any(BooleanBuilder.class))).thenReturn(tasks);
-        when(taskMapper.toTaskDto(Mockito.any(Task.class))).thenReturn(taskDto);
+        when(taskRepository.findAll(any(BooleanBuilder.class))).thenReturn(tasks);
+        when(taskMapper.toTaskDto(any(Task.class))).thenReturn(taskDto);
 
         // When
         List<TaskDto> result = taskServiceImpl.getTasksByFilter(filter);
@@ -120,8 +114,8 @@ public class TaskServiceImplTest {
         assertEquals(expectedDto, result);
 
 
-        verify(taskRepository).findAll(Mockito.any(BooleanBuilder.class));
-        verify(taskMapper, times(tasks.size())).toTaskDto(Mockito.any(Task.class));
+        verify(taskRepository).findAll(any(BooleanBuilder.class));
+        verify(taskMapper, times(tasks.size())).toTaskDto(any(Task.class));
     }
 
     @Test
@@ -132,7 +126,7 @@ public class TaskServiceImplTest {
         TaskDto taskDto = new TaskDto(1L, "Task Name Updated", "Description Updated", TaskStatus.DONE);
         Task savedTask = new Task(1L, "Task Name Updated", "Description Updated", TaskStatus.DONE);
         when(taskRepository.findById(taskId)).thenReturn(java.util.Optional.of(task));
-        when(subTaskRepository.findAll(Mockito.any(BooleanBuilder.class))).thenReturn(Collections.emptyList());
+        when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(Collections.emptyList());
         when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
         when(taskMapper.toTaskDto(any(Task.class))).thenReturn(taskDto);
 
@@ -149,6 +143,7 @@ public class TaskServiceImplTest {
 
     @Test
     void updateTaskByIdWithActiveSubTasksShouldThrowException() {
+        //Given
         Long taskId = 1L;
         Task existingTask = new Task(taskId, "Old Name", "Old Description", TaskStatus.IN_PROGRESS);
         TaskDto updateDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
@@ -161,24 +156,29 @@ public class TaskServiceImplTest {
                         TaskStatus.IN_PROGRESS,
                         existingTask)));
 
+        //When and Then
         assertThrows(UpdateTaskException.class, () -> taskServiceImpl.updateTaskById(taskId, updateDto));
     }
 
 
     @Test
     void deleteTaskByIdWithoutActiveSubTasks() {
+        //Given
         Long taskId = 1L;
         when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(Collections.emptyList());
         doNothing().when(taskRepository).deleteById(taskId);
 
+        //When
         taskServiceImpl.deleteTaskById(taskId);
 
+        //Then
         verify(taskRepository).deleteById(taskId);
         verify(subTaskRepository).findAll(any(BooleanBuilder.class));
     }
 
     @Test
     void deleteTaskByIdWithActiveSubTasksShouldThrowException() {
+        //Given
         Long taskId = 1L;
         Task existingTask = new Task(taskId, "Old Name", "Old Description", TaskStatus.IN_PROGRESS);
         List<SubTask> activeSubTasks = List.of(new SubTask(2L,
@@ -188,6 +188,7 @@ public class TaskServiceImplTest {
                 existingTask));
         when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(activeSubTasks);
 
+        //When and Then
         assertThrows(DeleteTaskException.class, () -> taskServiceImpl.deleteTaskById(taskId));
 
         verify(taskRepository, never()).deleteById(any());
