@@ -5,6 +5,7 @@ import antonfeklichev.tasktrackerapp.dto.TaskDto;
 import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 import antonfeklichev.tasktrackerapp.service.TaskService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,12 +14,14 @@ import java.util.List;
 @RestController
 @RequestMapping(path = "api/v1/task")
 @RequiredArgsConstructor
+@Slf4j
 public class TaskController {
 
     private final TaskService taskService;
 
     @PostMapping
     public ResponseEntity<TaskDto> addTask(@RequestBody NewTaskDto newTaskDto) {
+        log.info("Получен запрос на создание задачи {}",newTaskDto);
         return ResponseEntity.ok()
                 .body(taskService.addTask(newTaskDto));
     }

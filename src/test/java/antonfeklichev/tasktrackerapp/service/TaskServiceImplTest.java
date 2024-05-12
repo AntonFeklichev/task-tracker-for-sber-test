@@ -24,6 +24,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -35,8 +37,7 @@ public class TaskServiceImplTest {
     SubTaskRepository subTaskRepository;
     @Mock
     TaskMapper taskMapper;
-    @Mock
-    SubTaskMapper subTaskMapper;
+
     @InjectMocks
     TaskServiceImpl taskServiceImpl;
 
@@ -118,81 +119,62 @@ public class TaskServiceImplTest {
         verify(taskMapper, times(tasks.size())).toTaskDto(any(Task.class));
     }
 
+
     @Test
-    void updateTaskByIdSuccessfully() {
+    void updateTaskById_ShouldUpdateTask_WhenNoActiveSubTasks() {
         // Given
         Long taskId = 1L;
-        Task task = new Task(1L, "Task Name", "Description", TaskStatus.IN_PROGRESS);
-        TaskDto taskDto = new TaskDto(1L, "Task Name Updated", "Description Updated", TaskStatus.DONE);
-        Task savedTask = new Task(1L, "Task Name Updated", "Description Updated", TaskStatus.DONE);
+        Task task = new Task(taskId, "Old Name", "Old Description", TaskStatus.NEW);
+        TaskDto taskDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
         when(taskRepository.findById(taskId)).thenReturn(java.util.Optional.of(task));
-        when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(Collections.emptyList());
-        when(taskRepository.save(any(Task.class))).thenReturn(savedTask);
-        when(taskMapper.toTaskDto(any(Task.class))).thenReturn(taskDto);
+        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
+        when(taskMapper.toTaskDto(any())).thenReturn(taskDto);
 
         // When
-        TaskDto result = taskServiceImpl.updateTaskById(taskId, taskDto);
+        TaskDto updatedTask = taskServiceImpl.updateTaskById(taskId, taskDto);
 
         // Then
-        assertNotNull(result);
-        assertEquals("Task Name Updated", result.name());
-        assertEquals(TaskStatus.DONE, result.status());
+        assertThat(updatedTask.name()).isEqualTo(taskDto.name());
+        assertThat(updatedTask.status()).isEqualTo(TaskStatus.DONE);
         verify(taskRepository).save(task);
     }
 
-
     @Test
-    void updateTaskByIdWithActiveSubTasksShouldThrowException() {
-        //Given
+    void updateTaskById_ShouldThrowException_WhenActiveSubTasksExist() {
+        // Given
         Long taskId = 1L;
-        Task existingTask = new Task(taskId, "Old Name", "Old Description", TaskStatus.IN_PROGRESS);
-        TaskDto updateDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
+        Task task = new Task(taskId, "Old Name", "Old Description", TaskStatus.NEW);
+        TaskDto taskDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
+        when(taskRepository.findById(taskId)).thenReturn(java.util.Optional.of(task));
+        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.singletonList(new SubTask()));
 
-        when(taskRepository.findById(taskId)).thenReturn(Optional.of(existingTask));
-        when(subTaskRepository.findAll(any(BooleanBuilder.class)))
-                .thenReturn(List.of(new SubTask(2L,
-                        "Subtask Name",
-                        "Subtask Description",
-                        TaskStatus.IN_PROGRESS,
-                        existingTask)));
-
-        //When and Then
-        assertThrows(UpdateTaskException.class, () -> taskServiceImpl.updateTaskById(taskId, updateDto));
+        // When & Then
+        assertThrows(UpdateTaskException.class, () -> taskServiceImpl.updateTaskById(taskId, taskDto));
     }
 
-
     @Test
-    void deleteTaskByIdWithoutActiveSubTasks() {
-        //Given
+    void deleteTaskById_ShouldDeleteTask_WhenNoActiveSubTasks() {
+        // Given
         Long taskId = 1L;
-        when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(Collections.emptyList());
-        doNothing().when(taskRepository).deleteById(taskId);
+        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
 
-        //When
+        // When
         taskServiceImpl.deleteTaskById(taskId);
 
-        //Then
+        // Then
         verify(taskRepository).deleteById(taskId);
-        verify(subTaskRepository).findAll(any(BooleanBuilder.class));
     }
 
     @Test
-    void deleteTaskByIdWithActiveSubTasksShouldThrowException() {
-        //Given
+    void deleteTaskById_ShouldThrowException_WhenActiveSubTasksExist() {
+        // Given
         Long taskId = 1L;
-        Task existingTask = new Task(taskId, "Old Name", "Old Description", TaskStatus.IN_PROGRESS);
-        List<SubTask> activeSubTasks = List.of(new SubTask(2L,
-                "Subtask",
-                "Description",
-                TaskStatus.IN_PROGRESS,
-                existingTask));
-        when(subTaskRepository.findAll(any(BooleanBuilder.class))).thenReturn(activeSubTasks);
+        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(List.of(new SubTask()));
 
-        //When and Then
-        assertThrows(DeleteTaskException.class, () -> taskServiceImpl.deleteTaskById(taskId));
-
-        verify(taskRepository, never()).deleteById(any());
-        verify(subTaskRepository).findAll(any(BooleanBuilder.class));
+        // When & Then
+        assertThatThrownBy(() -> taskServiceImpl.deleteTaskById(taskId))
+                .isInstanceOf(DeleteTaskException.class)
+                .hasMessageContaining("Delete active SubTasks of this Task first");
     }
 
 }

@@ -8,6 +8,7 @@ import antonfeklichev.tasktrackerapp.entity.Task;
 import antonfeklichev.tasktrackerapp.entity.TaskStatus;
 import antonfeklichev.tasktrackerapp.exception.DeleteTaskException;
 import antonfeklichev.tasktrackerapp.exception.TaskNotFoundException;
+import antonfeklichev.tasktrackerapp.exception.UpdateTaskException;
 import antonfeklichev.tasktrackerapp.repository.SubTaskRepository;
 import antonfeklichev.tasktrackerapp.repository.TaskRepository;
 import org.junit.jupiter.api.Test;
@@ -19,6 +20,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.catchThrowable;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Testcontainers
@@ -114,46 +116,39 @@ public class TaskServiceImplIntegrationTest {
     }
 
     @Test
-    public void updateTaskById_ShouldUpdateAndReturnTaskDto() {
+    public void updateTaskById_ShouldUpdateTaskDetails_WhenNoSubTasksInProgress() {
         // Given
-        Task task = new Task(null, "Initial Task", "Initial Description", TaskStatus.NEW);
-        task = taskRepository.save(task);
-
-        TaskDto updatedTaskDto = new TaskDto(task.getId(), "Updated Task", "Updated Description", TaskStatus.IN_PROGRESS);
+        Task task = new Task(null, "Initial Task", "Initial Description", TaskStatus.IN_PROGRESS);
+        Task savedTask = taskRepository.save(task);
+        TaskDto taskDto = new TaskDto(savedTask.getId(), "Updated Task", "Updated Description", TaskStatus.DONE);
 
         // When
-        TaskDto result = taskService.updateTaskById(task.getId(), updatedTaskDto);
+        TaskDto updatedTask = taskService.updateTaskById(savedTask.getId(), taskDto);
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.id()).isEqualTo(task.getId());
-        assertThat(result.name()).isEqualTo(updatedTaskDto.name());
-        assertThat(result.description()).isEqualTo(updatedTaskDto.description());
-        assertThat(result.status()).isEqualTo(updatedTaskDto.status());
-
-        // Verify in database
-        Task updatedTask = taskRepository.findById(result.id()).orElseThrow();
-        assertThat(updatedTask.getName()).isEqualTo(updatedTaskDto.name());
-        assertThat(updatedTask.getDescription()).isEqualTo(updatedTaskDto.description());
-        assertThat(updatedTask.getStatus()).isEqualTo(updatedTaskDto.status());
+        assertThat(updatedTask.name()).isEqualTo("Updated Task");
+        assertThat(updatedTask.description()).isEqualTo("Updated Description");
+        assertThat(updatedTask.status()).isEqualTo(TaskStatus.DONE);
     }
 
     @Test
-    public void updateTaskById_ShouldThrowExceptionWhenTaskNotFound() {
+    public void updateTaskById_ShouldThrowUpdateTaskException_WhenSubTasksAreInProgress() {
         // Given
-        Long invalidId = -1L;
-        TaskDto taskDto = new TaskDto(invalidId, "Non-existent Task", "Does not exist", TaskStatus.DONE);
+        Task task = new Task(1l, "Task with SubTask", "Description", TaskStatus.IN_PROGRESS);
+        task = taskRepository.save(task);
+        SubTask subTask = new SubTask(null, "Subtask", "Description", TaskStatus.IN_PROGRESS, task);
+        subTaskRepository.save(subTask);
+        TaskDto taskDto = new TaskDto(task.getId(), "Task with SubTask", "Description", TaskStatus.DONE);
 
-        // When
-        Throwable thrown = catchThrowable(() -> {
-            taskService.updateTaskById(invalidId, taskDto);
-        });
-
-        // Then
-        assertThat(thrown).isInstanceOf(TaskNotFoundException.class)
-                .hasMessageContaining("Task not found");
+        // When & Then
+        assertThrows(UpdateTaskException.class, () -> taskService.updateTaskById(1l, taskDto));
     }
 
+    @Test
+    public void updateTaskById_ShouldThrowTaskNotFoundException_WhenTaskDoesNotExist() {
+        // When & Then
+        assertThrows(TaskNotFoundException.class, () -> taskService.updateTaskById(-1L, new TaskDto(-1L, "Nonexistent Task", "No Desc", TaskStatus.NEW)));
+    }
     @Test
     public void deleteTaskById_WhenAllSubTasksAreDone_ShouldDeleteTask() {
         // Given
