@@ -15,6 +15,6 @@ public interface SubTaskRepository extends JpaRepository<SubTask, Long>, Queryds
     @Query("SELECT s " +
            "FROM SubTask s " +
            "WHERE s.task.id = :taskId AND s.status <> :status")
-    List<SubTask> getSubTaskByTaskIdNoEqualStatus(Long taskId, TaskStatus status);
+    List<SubTask> getSubTaskByTaskIdNotEqualStatus(Long taskId, TaskStatus status);
 
 }

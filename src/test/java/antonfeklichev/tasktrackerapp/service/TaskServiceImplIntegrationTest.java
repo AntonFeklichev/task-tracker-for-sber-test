@@ -149,6 +149,7 @@ public class TaskServiceImplIntegrationTest {
         // When & Then
         assertThrows(TaskNotFoundException.class, () -> taskService.updateTaskById(-1L, new TaskDto(-1L, "Nonexistent Task", "No Desc", TaskStatus.NEW)));
     }
+
     @Test
     public void deleteTaskById_WhenAllSubTasksAreDone_ShouldDeleteTask() {
         // Given

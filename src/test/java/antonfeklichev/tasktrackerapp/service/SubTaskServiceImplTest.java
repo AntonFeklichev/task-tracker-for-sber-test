@@ -7,6 +7,7 @@ import antonfeklichev.tasktrackerapp.entity.QSubTask;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
 import antonfeklichev.tasktrackerapp.entity.TaskStatus;
+import antonfeklichev.tasktrackerapp.exception.SubTaskNotFoundException;
 import antonfeklichev.tasktrackerapp.exception.TaskNotFoundException;
 import antonfeklichev.tasktrackerapp.mapper.SubTaskMapper;
 import antonfeklichev.tasktrackerapp.repository.SubTaskRepository;
@@ -105,7 +106,7 @@ public class SubTaskServiceImplTest {
         when(subTaskRepository.findById(subTaskId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(TaskNotFoundException.class, () -> subTaskService.getSubTaskById(subTaskId));
+        assertThrows(SubTaskNotFoundException.class, () -> subTaskService.getSubTaskById(subTaskId));
     }
 
 
@@ -176,7 +177,7 @@ public class SubTaskServiceImplTest {
         when(subTaskRepository.findById(subTaskId)).thenReturn(Optional.empty());
 
         // When & Then
-        assertThrows(TaskNotFoundException.class, () -> subTaskService.updateSubTaskById(subTaskId, subTaskDto));
+        assertThrows(SubTaskNotFoundException.class, () -> subTaskService.updateSubTaskById(subTaskId, subTaskDto));
     }
 
     @Test

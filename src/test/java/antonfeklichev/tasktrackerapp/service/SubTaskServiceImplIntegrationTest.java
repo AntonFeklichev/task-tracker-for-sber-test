@@ -6,6 +6,7 @@ import antonfeklichev.tasktrackerapp.dto.SubTaskDto;
 import antonfeklichev.tasktrackerapp.entity.SubTask;
 import antonfeklichev.tasktrackerapp.entity.Task;
 import antonfeklichev.tasktrackerapp.entity.TaskStatus;
+import antonfeklichev.tasktrackerapp.exception.SubTaskNotFoundException;
 import antonfeklichev.tasktrackerapp.exception.TaskNotFoundException;
 import antonfeklichev.tasktrackerapp.repository.SubTaskRepository;
 import antonfeklichev.tasktrackerapp.repository.TaskRepository;
@@ -94,7 +95,7 @@ public class SubTaskServiceImplIntegrationTest {
         Throwable thrown = catchThrowable(() -> subTaskService.getSubTaskById(nonExistentSubTaskId));
 
         // Then
-        assertThat(thrown).isInstanceOf(TaskNotFoundException.class)
+        assertThat(thrown).isInstanceOf(SubTaskNotFoundException.class)
                 .hasMessageContaining("SubTask not found");
     }
 
@@ -152,7 +153,7 @@ public class SubTaskServiceImplIntegrationTest {
         // When & Then
         Throwable thrown = catchThrowable(() -> subTaskService.updateSubTaskById(nonExistentSubTaskId, subTaskDto));
 
-        assertThat(thrown).isInstanceOf(TaskNotFoundException.class)
+        assertThat(thrown).isInstanceOf(SubTaskNotFoundException.class)
                 .hasMessageContaining("SubTask not found");
 
     }

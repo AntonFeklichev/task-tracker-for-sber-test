@@ -43,7 +43,7 @@ public class TaskServiceImpl implements TaskService {
     public TaskDto getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
                 .orElseThrow(() -> {
-                    log.error("Не найдена задача {}", taskId);
+                    log.error("При вызове метода TaskServiceImpl.getTaskById() не найдена задача по идентификатору {}.", taskId);
                     return new TaskNotFoundException("Task not found");
                 });
 
@@ -68,11 +68,16 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public TaskDto updateTaskById(Long taskId, TaskDto taskDto) {
         Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+                .orElseThrow(() -> {
+                    log.error("При вызове метода TaskServiceImpl.updateTaskById() не найдена задача по идентификатору {}.", taskId);
+                    return new TaskNotFoundException("Task not found");
+                });
 
-        List<SubTask> subTaskList = subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE);
+        List<SubTask> subTaskList = subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE);
 
         if (!subTaskList.isEmpty() && taskDto.status().equals(TaskStatus.DONE)) {
+            log.error("При вызове метода TaskServiceImpl.updateTaskById() статус задачи по идентификатору {} не может быть изменен на DONE. " +
+                      "Вначале поменяйте статус связанных подзадач на DONE или удалите подзадачи.", taskId);
             throw new UpdateTaskException("You cannot set DONE status to Task, while its SubTasks in progress.");
         }
         taskMapper.patchTask(task, taskDto);
@@ -81,19 +86,17 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toTaskDto(savedTask);
     }
 
-
     @Override
     public void deleteTaskById(Long taskId) {
 
-        List<SubTask> subTaskList = subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE);
+        List<SubTask> subTaskList = subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE);
 
         if (!subTaskList.isEmpty()) {
+            log.error("При вызове метода TaskServiceImpl.deleteTaskById() задача по идентификатору {} не может быть удалена. " +
+                      "Вначале поменяйте статус связанных подзадач на DONE или удалите подзадачи.", taskId);
             throw new DeleteTaskException("Delete active SubTasks of this Task first");
-        } // TODO Сделать ExceptionHandler
-
+        }
         taskRepository.deleteById(taskId);
-    } // TODO Сделать логер
-
-
-} // TODO Сделать JavaDoc
+    }
+}
 

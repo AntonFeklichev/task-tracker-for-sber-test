@@ -9,7 +9,6 @@ import antonfeklichev.tasktrackerapp.entity.TaskStatus;
 import antonfeklichev.tasktrackerapp.exception.DeleteTaskException;
 import antonfeklichev.tasktrackerapp.exception.TaskNotFoundException;
 import antonfeklichev.tasktrackerapp.exception.UpdateTaskException;
-import antonfeklichev.tasktrackerapp.mapper.SubTaskMapper;
 import antonfeklichev.tasktrackerapp.mapper.TaskMapper;
 import antonfeklichev.tasktrackerapp.repository.SubTaskRepository;
 import antonfeklichev.tasktrackerapp.repository.TaskRepository;
@@ -127,7 +126,7 @@ public class TaskServiceImplTest {
         Task task = new Task(taskId, "Old Name", "Old Description", TaskStatus.NEW);
         TaskDto taskDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
         when(taskRepository.findById(taskId)).thenReturn(java.util.Optional.of(task));
-        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
+        when(subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
         when(taskMapper.toTaskDto(any())).thenReturn(taskDto);
 
         // When
@@ -146,7 +145,7 @@ public class TaskServiceImplTest {
         Task task = new Task(taskId, "Old Name", "Old Description", TaskStatus.NEW);
         TaskDto taskDto = new TaskDto(taskId, "Updated Name", "Updated Description", TaskStatus.DONE);
         when(taskRepository.findById(taskId)).thenReturn(java.util.Optional.of(task));
-        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.singletonList(new SubTask()));
+        when(subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.singletonList(new SubTask()));
 
         // When & Then
         assertThrows(UpdateTaskException.class, () -> taskServiceImpl.updateTaskById(taskId, taskDto));
@@ -156,7 +155,7 @@ public class TaskServiceImplTest {
     void deleteTaskById_ShouldDeleteTask_WhenNoActiveSubTasks() {
         // Given
         Long taskId = 1L;
-        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
+        when(subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE)).thenReturn(Collections.emptyList());
 
         // When
         taskServiceImpl.deleteTaskById(taskId);
@@ -169,7 +168,7 @@ public class TaskServiceImplTest {
     void deleteTaskById_ShouldThrowException_WhenActiveSubTasksExist() {
         // Given
         Long taskId = 1L;
-        when(subTaskRepository.getSubTaskByTaskIdNoEqualStatus(taskId, TaskStatus.DONE)).thenReturn(List.of(new SubTask()));
+        when(subTaskRepository.getSubTaskByTaskIdNotEqualStatus(taskId, TaskStatus.DONE)).thenReturn(List.of(new SubTask()));
 
         // When & Then
         assertThatThrownBy(() -> taskServiceImpl.deleteTaskById(taskId))
