@@ -21,6 +21,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Сервис для управления задачами.
+ * Класс <code>TaskServiceImpl</code> реализует интерфейс {@link TaskService} и предоставляет методы для создания, получения,
+ * обновления и удаления задач.
+ * <p>
+ * Поля класса:
+ * <ul>
+ *   <li><b>taskRepository</b> - репозиторий для доступа и управления задачами в базе данных.</li>
+ *   <li><b>subTaskRepository</b> - репозиторий для доступа к подзадачам, связанным с основными задачами.</li>
+ *   <li><b>taskMapper</b> - маппер для конвертации между {@link TaskDto}, {@link NewTaskDto} и {@link Task} сущностями.</li>
+ * </ul>
+ * <p>
+ *
+ * @see TaskService
+ * @see Task
+ * @see TaskDto
+ * @see SubTask
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -30,7 +48,12 @@ public class TaskServiceImpl implements TaskService {
     private final SubTaskRepository subTaskRepository;
     private final TaskMapper taskMapper;
 
-
+    /**
+     * Добавляет новую задачу в систему.
+     *
+     * @param createTaskDto DTO с данными для создания новой задачи.
+     * @return DTO созданной задачи.
+     */
     @Override
     public TaskDto addTask(NewTaskDto createTaskDto) {
         Task task = taskMapper.toTask(createTaskDto);
@@ -39,6 +62,13 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toTaskDto(savedTask);
     }
 
+    /**
+     * Возвращает задачу по её идентификатору.
+     *
+     * @param taskId идентификатор задачи.
+     * @return DTO запрашиваемой задачи.
+     * @throws TaskNotFoundException если задача не найдена.
+     */
     @Override
     public TaskDto getTaskById(Long taskId) {
         Task task = taskRepository.findById(taskId)
@@ -50,6 +80,12 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toTaskDto(task);
     }
 
+    /**
+     * Возвращает список всех задач, соответствующих заданным критериям фильтрации.
+     *
+     * @param filter DTO критерии фильтрации задач.
+     * @return список задач, удовлетворяющих критериям фильтра.
+     */
     @Override
     public List<TaskDto> getTasksByFilter(QueryDslFilterDto filter) {
         BooleanBuilder predicate = new BooleanBuilder();
@@ -65,6 +101,14 @@ public class TaskServiceImpl implements TaskService {
                 .toList();
     }
 
+    /**
+     * Обновляет задачу по её идентификатору.
+     *
+     * @param taskId Идентификатор задачи для обновления.
+     * @param taskDto DTO с обновленной информацией задачи.
+     * @return обновленное DTO задачи.
+     * @throws UpdateTaskException если изменение статуса на 'DONE' невозможно из-за незавершенных подзадач.
+     */
     @Override
     public TaskDto updateTaskById(Long taskId, TaskDto taskDto) {
         Task task = taskRepository.findById(taskId)
@@ -86,6 +130,12 @@ public class TaskServiceImpl implements TaskService {
         return taskMapper.toTaskDto(savedTask);
     }
 
+    /**
+     * Удаляет задачу по её идентификатору.
+     *
+     * @param taskId идентификатор задачи для удаления.
+     * @throws DeleteTaskException если задачу невозможно удалить из-за наличия активных подзадач.
+     */
     @Override
     public void deleteTaskById(Long taskId) {
 

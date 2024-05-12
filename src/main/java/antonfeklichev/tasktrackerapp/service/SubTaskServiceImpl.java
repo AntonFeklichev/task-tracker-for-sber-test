@@ -19,6 +19,24 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+/**
+ * Класс <code>SubTaskServiceImpl</code> реализует интерфейс {@link SubTaskService} и предоставляет методы для работы с подзадачами.
+ * Основная функциональность включает создание, чтение, обновление и удаление (CRUD) подзадач.
+ * <p>
+ * Поля класса:
+ * <ul>
+ *   <li><b>subTaskRepository</b> - репозиторий для получения подзадач из базы данных.</li>
+ *   <li><b>subTaskMapper</b> - маппер для преобразования подзадач в DTO и обратно.</li>
+ *   <li><b>taskRepository</b> - репозиторий для получения основных задач из базы данных.</li>
+ * </ul>
+ * <p>
+ * Этот сервис служит связующим звеном между базой данных и клиентским приложением, обеспечивая необходимую бизнес-логику для обработки запросов на подзадачи.
+ *
+ * @see SubTaskService
+ * @see SubTask
+ * @see Task
+ */
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -27,6 +45,16 @@ public class SubTaskServiceImpl implements SubTaskService {
     private final SubTaskRepository subTaskRepository;
     private final SubTaskMapper subTaskMapper;
     private final TaskRepository taskRepository;
+
+
+    /**
+     * Добавляет новую подзадачу для указанной задачи.
+     *
+     * @param taskId Идентификатор задачи, к которой нужно добавить подзадачу.
+     * @param newSubTaskDto DTO с данными для создания новой подзадачи.
+     * @return DTO созданной подзадачи.
+     * @throws TaskNotFoundException если задача с указанным идентификатором не найдена.
+     */
 
     @Override
     public SubTaskDto addSubTaskByTaskId(Long taskId, NewSubTaskDto newSubTaskDto) {
@@ -44,6 +72,13 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     }
 
+    /**
+     * Возвращает подзадачу по её идентификатору.
+     *
+     * @param subTaskId Идентификатор подзадачи.
+     * @return DTO запрашиваемой подзадачи.
+     * @throws SubTaskNotFoundException если подзадача с указанным идентификатором не найдена.
+     */
     @Override
     public SubTaskDto getSubTaskById(Long subTaskId) {
         SubTask subTask = subTaskRepository.findById(subTaskId)
@@ -56,6 +91,13 @@ public class SubTaskServiceImpl implements SubTaskService {
         return subTaskMapper.toSubTaskDto(subTask);
     }
 
+    /**
+     * Возвращает список подзадач по фильтрам и идентификатору задачи.
+     *
+     * @param taskId Идентификатор задачи.
+     * @param filter DTO, содержащий параметры фильтрации для поиска подзадач.
+     * @return Список DTO подзадач, соответствующих заданным критериям.
+     */
     @Override
     public List<SubTaskDto> getSubTasksByFilterAndTaskId(Long taskId, QueryDslFilterDto filter) {
 
@@ -73,6 +115,14 @@ public class SubTaskServiceImpl implements SubTaskService {
 
     }
 
+    /**
+     * Обновляет подзадачу по её идентификатору.
+     *
+     * @param subTaskId Идентификатор подзадачи для обновления.
+     * @param subTaskDto DTO с обновленной информацией для подзадачи.
+     * @return Обновленное DTO подзадачи.
+     * @throws SubTaskNotFoundException если подзадача с указанным идентификатором не найдена.
+     */
     @Override
     public SubTaskDto updateSubTaskById(Long subTaskId, SubTaskDto subTaskDto) {
         SubTask subTask = subTaskRepository.findById(subTaskId)
@@ -87,6 +137,11 @@ public class SubTaskServiceImpl implements SubTaskService {
         return subTaskMapper.toSubTaskDto(savedSubTask);
     }
 
+    /**
+     * Удаляет подзадачу по идентификатору.
+     *
+     * @param subTaskId Идентификатор подзадачи для удаления.
+     */
     @Override
     public void deleteSubTaskById(Long subTaskId) {
         subTaskRepository.deleteById(subTaskId);

@@ -6,6 +6,13 @@ import antonfeklichev.tasktrackerapp.dto.QueryDslFilterDto;
 
 import java.util.List;
 
+/**
+ * Интерфейс определяет методы для создания, получения, обновления и удаления подзадач,
+ * связанных с определенной задачей.
+ *
+ * Этот интерфейс служит основой для реализации бизнес-логики управления подзадачами
+ * и предполагает реализацию в классах, обрабатывающих конкретные операции с подзадачами.
+ */
 public interface SubTaskService {
     SubTaskDto addSubTaskByTaskId(Long taskId, NewSubTaskDto newSubTaskDto);
 
