@@ -1,0 +1,9 @@
+antonfeklichev.tasktrackerapp
+antonfeklichev.tasktrackerapp.controller
+antonfeklichev.tasktrackerapp.dto
+antonfeklichev.tasktrackerapp.entity
+antonfeklichev.tasktrackerapp.exception
+antonfeklichev.tasktrackerapp.mapper
+antonfeklichev.tasktrackerapp.repository
+antonfeklichev.tasktrackerapp.service
+antonfeklichev.tasktrackerapp.testcontainersconfig
